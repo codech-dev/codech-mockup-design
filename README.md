@@ -52,17 +52,18 @@ When creating multiple design versions, every version must be **identically diff
 
 ## Installation
 
-### Claude Code Official Marketplace
+### Claude Code (Recommended)
+
+**Step 1:** Add the marketplace
 
 ```bash
-/plugin install codech-mockup-design@claude-plugins-official
+/plugin marketplace add codech-dev/codech-mockup-design
 ```
 
-### Claude Code (via Custom Marketplace)
+**Step 2:** Install the plugin
 
 ```bash
-/plugin marketplace add codech-dev/codech-mockup-design-marketplace
-/plugin install codech-mockup-design@codech-mockup-design-marketplace
+/plugin install codech-mockup-design@codech-mockup-design
 ```
 
 ### Manual Installation (Local)
@@ -79,6 +80,12 @@ Or install globally (available across all projects):
 ```bash
 cd ~/.claude/skills/
 git clone https://github.com/codech-dev/codech-mockup-design.git
+```
+
+### Updating
+
+```bash
+/plugin update codech-mockup-design
 ```
 
 ## Dependencies
@@ -104,17 +111,21 @@ The design system documents target this stack by default (adapts to your project
 
 ```
 codech-mockup-design/
-├── package.json
+├── .claude-plugin/
+│   ├── marketplace.json
+│   └── plugin.json
+├── .claude/
+│   └── skills/
+│       └── codech-mockup-design/
+│           ├── SKILL.md
+│           └── references/
+│               ├── showcase-template.md
+│               ├── differentiation-axes.md
+│               └── interactive-prototype-scaffold.md
 ├── CLAUDE.md
 ├── README.md
 ├── LICENSE
-└── skills/
-    └── codech-mockup-design/
-        ├── SKILL.md
-        └── references/
-            ├── showcase-template.md
-            ├── differentiation-axes.md
-            └── interactive-prototype-scaffold.md
+└── package.json
 ```
 
 ## Example output

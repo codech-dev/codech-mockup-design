@@ -1,0 +1,38 @@
+{
+  "name": "codech-mockup-design",
+  "id": "codech-mockup-design",
+  "owner": {
+    "name": "codech-dev"
+  },
+  "metadata": {
+    "description": "Structured design ideation and visual prototyping workflow for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "codech-mockup-design",
+      "source": "./",
+      "description": "Structured 7-phase design workflow that produces design system documents and self-contained HTML showcases. Supports multiple design directions with mandatory 7-axis differentiation, interactive prototypes with Framer Motion + shadcn/ui, and accessibility-first showcases.",
+      "version": "1.0.0",
+      "author": {
+        "name": "codech-dev"
+      },
+      "homepage": "https://github.com/codech-dev/codech-mockup-design",
+      "repository": "https://github.com/codech-dev/codech-mockup-design",
+      "license": "MIT",
+      "keywords": [
+        "design",
+        "mockup",
+        "prototyping",
+        "design-system",
+        "ui-ux",
+        "showcase",
+        "tailwind",
+        "shadcn",
+        "framer-motion"
+      ],
+      "category": "design",
+      "strict": false
+    }
+  ]
+}

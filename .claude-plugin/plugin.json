@@ -1,0 +1,18 @@
+{
+  "name": "codech-mockup-design",
+  "description": "Structured design ideation and visual prototyping workflow. Creates design system documents and self-contained HTML showcases that render live in any browser. Actions: design, prototype, mockup, create design system, explore visual directions, build showcase. Projects: landing page, dashboard, mobile app, SaaS, marketplace, portfolio, admin panel, e-commerce. Elements: color system, typography, spacing, motion, components, accessibility. Supports multiple design directions with 7-axis differentiation and optional interactive Framer Motion + shadcn/ui prototypes.",
+  "version": "1.0.0",
+  "author": {
+    "name": "codech-dev"
+  },
+  "license": "MIT",
+  "keywords": [
+    "design",
+    "mockup",
+    "prototyping",
+    "design-system",
+    "ui-ux",
+    "showcase"
+  ],
+  "skills": ["./.claude/skills/codech-mockup-design"]
+}
