@@ -1,6 +1,6 @@
 {
   "name": "codech-mockup-design",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Structured design ideation and visual prototyping workflow for Claude Code. Creates design system documents and self-contained HTML showcases.",
   "author": "codech-dev",
   "license": "MIT",

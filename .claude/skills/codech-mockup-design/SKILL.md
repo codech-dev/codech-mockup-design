@@ -1143,6 +1143,66 @@ function reinitClone(clone) {
 }
 ```
 
+
+
+## Desktop & Mobile Mockup Guidelines
+
+These rules are derived from real production issues encountered during mockup development. Follow them to avoid the same mistakes.
+
+### Desktop mockup frame
+
+1. **Always wrap in a browser frame** — Use a Safari/Chrome-style window (traffic light dots + URL bar with site domain) instead of a plain bordered container. Rounded corners (12px), light gray tab bar (#F0F0F0), white URL bar with green shield icon.
+
+2. **Render at 1440px, scale to fit** — Set the mockup content to `width: 1440px` and use CSS `zoom` (or `transform: scale()` with `transform-origin: top left`) to shrink it into the container. Calculate: `zoom = containerWidth / 1440`. This keeps the desktop layout intact at any viewport size.
+
+3. **Override all Tailwind responsive classes** — CSS media queries use viewport width, not element width. Add CSS overrides inside a `#desktop-mockup-frame` scope that force all `md:` classes to their desktop values:
+   ```css
+   #desktop-mockup-frame .hidden.md\:flex { display: flex !important; }
+   #desktop-mockup-frame .md\:hidden { display: none !important; }
+   #desktop-mockup-frame .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+   /* Cover every md: class used in the mockup */
+   ```
+
+4. **Force-hide the hamburger, force-show desktop nav** — Use inline `style="display: none !important"` on the mobile hamburger and `style="display: flex !important"` on desktop nav elements. The CSS overrides alone may not catch all cases.
+
+5. **Set screen height to 900px** — The scrollable area inside the browser frame should be at least 900px to show meaningful content before the user scrolls.
+
+6. **Use `isolation: isolate`** — Add this to the screen outer container to create a new stacking context. Prevents any `position: fixed` or high `z-index` elements (like sticky navs) from escaping the frame.
+
+### Mobile mockup frame
+
+7. **Use a phone frame with bezel and notch** — 390px width, `border: 8px solid #1A1008`, `border-radius: 40px`, notch bar (120px wide, 28px tall). Max-height: 844px with `overflow-y: auto` for scrolling.
+
+8. **Slide-in hamburger menu from left** — Full height, 75% width (max 280px), dark backdrop overlay, logo in header, nav links with dividers, login/contact in footer. Lock background scroll when open.
+
+9. **Single-card carousel for testimonials** — Use `width: 300%` track with `width: 33.333%` cards and slide by 33.333% per step. Support touch swipe (touchstart/touchend, threshold 30px), mouse drag, clickable dots, and auto-advance (4s).
+
+### Consistent styling
+
+10. **Match border-radius across desktop and mobile** — Define the radius in design tokens (e.g., `--radius-md: 8px`) and use the same value in both desktop CSS classes and mobile inline styles. Final check: search for `border-radius: [0-4]px` to catch inconsistencies.
+
+11. **Bilingual section titles** — If the project content is bilingual, ALL showcase section titles must follow the same pattern: Chinese as primary heading, English as italic subtitle. Never mix English-only titles with bilingual ones.
+
+12. **Use the project's actual language in components** — All buttons, badges, form labels, and nav links in the Components section must use the project's real labels (e.g., "立即選購" not "Shop Now"). Bilingual format (Chinese + English) is acceptable.
+
+### Fullscreen viewer
+
+13. **Force all reveal elements visible on clone** — After cloning a mockup for fullscreen, immediately add `.visible` to every `.reveal`, `.reveal-scale`, `.reveal-left`, `.reveal-right`, and `.stagger` element. Without this, sections below the fold remain invisible (opacity: 0) because the IntersectionObserver hasn't triggered them.
+
+14. **Re-add the mockup ID on the desktop clone** — The CSS overrides target `#desktop-mockup-frame`. Since `cloneNode` copies the ID but it gets removed to avoid duplicates, re-add it: `clone.setAttribute('id', 'desktop-mockup-frame')`.
+
+15. **Use CSS `zoom` for desktop fullscreen on mobile** — `transform: scale()` doesn't change layout size, causing scroll/height issues. CSS `zoom` naturally adjusts layout size. Firefox fallback: `-moz-transform: scale()` with `-moz-transform-origin: top left`.
+
+16. **Re-initialize interactive JS on clones** — Event listeners don't survive `cloneNode`. After cloning, re-bind: carousel swipe/dots, hamburger menu open/close, and any other interactive elements.
+
+### Motion system section
+
+17. **Use real components, not abstract shapes** — Motion demos must use actual UI elements from the mockup (product cards, testimonial cards, nav links, CTA buttons). Abstract bouncing balls and racing bars waste space and don't communicate the design's actual motion.
+
+18. **Three-row layout** — Row 1: motion tokens reference table + hero entrance auto-loop. Row 2: real testimonial card fade-in, real product cards stagger, real product cards with live hover. Row 3: actual CTA buttons with hover transitions, actual nav links with underline animation, real product images with zoom-on-hover.
+
+19. **Auto-loop with CSS keyframes** — Use `animation: name duration ease infinite` for entrance demos. Interactive demos (hover effects) should be real elements the user can interact with, not auto-playing.
+
 ## Quality checklist
 
 **For multi-version designs (v2, v3, v4...) — verify FIRST:**
@@ -1177,6 +1237,16 @@ function reinitClone(clone) {
 - [ ] Interactive hover demos included (card lift, image zoom, button transitions, nav underlines)
 - [ ] reinitClone() override written if cloned elements contain interactive JS
 - [ ] AI-generated images considered (Phase 3.6) — run generate_mockup_images.py if showcase uses placeholder images
+- [ ] Desktop mockup wrapped in browser frame (traffic lights + URL bar)
+- [ ] Desktop mockup renders at 1440px with CSS zoom/scale to fit container
+- [ ] Tailwind md: responsive classes overridden to force desktop layout inside mockup frame
+- [ ] Hamburger hidden and desktop nav forced visible via inline styles in desktop mockup
+- [ ] Screen container uses isolation: isolate to contain fixed/z-index elements
+- [ ] Fullscreen clone forces .visible on all reveal/stagger elements
+- [ ] Fullscreen desktop clone re-adds mockup ID for CSS overrides
+- [ ] Fullscreen desktop uses CSS zoom to fit mobile viewport
+- [ ] Border-radius consistent across desktop and mobile (check for 0-4px values)
+- [ ] All section titles bilingual if project content is bilingual
 
 ## File naming convention
 
