@@ -168,6 +168,7 @@ design-showcase.html
 ├── Section N: Full-page screen mockups
 │   └── Each framed in a bordered container with shadow
 │       to look like a real app screenshot
+│       PLUS a "Full Screen" button that opens an overlay viewer
 ├── Footer with navigation links
 └── <script> IntersectionObserver for entrance animations
 ```
@@ -256,16 +257,133 @@ design-showcase.html
 
 **Screen mockup framing pattern:**
 
-Each full-page screen mockup should be wrapped in a container that looks like a device/browser frame:
+Each full-page screen mockup should be wrapped in a container that looks like a device/browser frame. Always include a "Full Screen" button so the user can open the mockup in a dark overlay viewer:
 
 ```html
-<div class="rounded-2xl overflow-hidden border border-[var(--color-border)] bg-white"
+<div class="relative rounded-2xl overflow-hidden border border-[var(--color-border)] bg-white"
      style="box-shadow: var(--shadow-xl);">
+  <!-- Full Screen button -->
+  <button class="fullscreen-btn absolute top-3 right-3 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-black/60 text-white hover:bg-black/80 transition-colors backdrop-blur-sm"
+          onclick="openFullscreen(this.closest('.relative'))">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+    Full Screen
+  </button>
   <!-- The actual screen content goes here -->
 </div>
 <p class="mt-4 text-xs text-[var(--color-fg-subtle)] text-center font-mono">
   Brief annotation explaining what this screen shows
 </p>
+```
+
+**Fullscreen overlay viewer pattern:**
+
+Add this CSS and JS to every showcase that has fullscreen buttons. The overlay works for both desktop mockups (max 1440px) and mobile phone frame mockups (390px centered):
+
+```css
+/* Fullscreen overlay */
+.fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+  overflow-y: auto;
+  animation: overlayIn 0.2s ease;
+}
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.fullscreen-close-btn {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  z-index: 10000;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fullscreen-close-btn:hover { background: rgba(255,255,255,0.25); }
+.fullscreen-hint {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.4);
+  font-size: 11px;
+  font-family: monospace;
+  pointer-events: none;
+}
+```
+
+```js
+function openFullscreen(sourceEl) {
+  // Determine if this is a phone frame (390px) or desktop mockup
+  const isPhone = sourceEl.querySelector('[style*="width: 390px"]') !== null
+                  || sourceEl.style.width === '390px';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'fullscreen-overlay';
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeFullscreen(overlay);
+  });
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'fullscreen-close-btn';
+  closeBtn.innerHTML = '&times;';
+  closeBtn.addEventListener('click', () => closeFullscreen(overlay));
+
+  const hint = document.createElement('div');
+  hint.className = 'fullscreen-hint';
+  hint.textContent = 'Press ESC or click backdrop to close';
+
+  // Clone the source element and strip the fullscreen button from the clone
+  const clone = sourceEl.cloneNode(true);
+  clone.style.cssText = isPhone
+    ? 'width: 390px; flex-shrink: 0;'
+    : 'width: 100%; max-width: 1440px;';
+  clone.querySelector('.fullscreen-btn')?.remove();
+
+  // Re-initialize any interactive JS on the cloned element
+  // (carousel indicators, hamburger menus, etc. must be re-bound after cloneNode)
+  reinitClone(clone);
+
+  overlay.appendChild(clone);
+  document.body.appendChild(overlay);
+  document.body.appendChild(closeBtn);
+  document.body.appendChild(hint);
+  document.body.style.overflow = 'hidden';
+
+  // ESC to close
+  overlay._escHandler = (e) => { if (e.key === 'Escape') closeFullscreen(overlay); };
+  document.addEventListener('keydown', overlay._escHandler);
+}
+
+function closeFullscreen(overlay) {
+  document.removeEventListener('keydown', overlay._escHandler);
+  document.querySelectorAll('.fullscreen-close-btn, .fullscreen-hint').forEach(el => el.remove());
+  overlay.remove();
+  document.body.style.overflow = '';
+}
+
+// Called after cloneNode to re-bind interactive JS on cloned elements.
+// Override this function per-showcase for carousel/menu re-initialization.
+function reinitClone(clone) {
+  // Default: nothing to reinit for static mockups.
+  // For showcases with carousels or hamburger menus, override this function
+  // below the main script block to re-attach those event listeners.
+}
 ```
 
 **Section header pattern:**
@@ -286,13 +404,177 @@ Each full-page screen mockup should be wrapped in a container that looks like a 
 </div>
 ```
 
+### Phase 3.5 — Mobile mockup section
+
+After completing the desktop screen mockups, build a **mobile viewport mockup** that shows the same page content adapted for a 390px mobile layout. Present it inside a phone frame with bezel and notch to give a realistic device feel.
+
+**When to include this phase:**
+- Any landing page or marketing site showcase
+- Any project where mobile experience is significant
+- Any time the user asks "how does it look on mobile?"
+
+**Phone frame pattern:**
+
+```html
+<!-- Phone Frame Section -->
+<section id="mobile" class="py-20 px-6 lg:px-10 border-t border-[var(--color-border)]">
+  <div class="max-w-[1400px] mx-auto">
+    <div class="flex items-end justify-between mb-8 reveal">
+      <div>
+        <p class="text-[11px] font-mono uppercase tracking-[0.14em] text-[var(--color-accent)] mb-3">§0N — Mobile</p>
+        <h2 class="text-4xl md:text-5xl tracking-[-0.02em] font-medium">Mobile View</h2>
+      </div>
+      <p class="hidden md:block text-sm text-[var(--color-fg-muted)] max-w-sm text-right leading-[1.6]">
+        390px viewport — same content adapted for mobile layout
+      </p>
+    </div>
+
+    <!-- Phone Frame -->
+    <div class="flex justify-center reveal">
+      <div class="relative" style="width: 390px;">
+        <div class="rounded-[40px] overflow-hidden border-[8px] border-[#1A1008]"
+             style="box-shadow: var(--shadow-xl), 0 0 0 2px #2a2018;">
+          <!-- Notch / Dynamic Island -->
+          <div class="relative z-20 flex justify-center" style="background: #1A1008;">
+            <div class="w-[120px] h-[28px] rounded-b-2xl" style="background: #1A1008;"></div>
+          </div>
+          <!-- Scrollable screen content -->
+          <div style="background: var(--color-bg); max-height: 844px; overflow-y: auto; position: relative;">
+            <!-- Mobile page content here — single column layout -->
+            <!-- Use touch-friendly tap targets (min 44px height) -->
+            <!-- Stack sections vertically -->
+            <!-- Hamburger menu replaces desktop nav -->
+          </div>
+        </div>
+        <!-- Full Screen button for phone frame -->
+        <button class="fullscreen-btn mt-4 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border border-[var(--color-border)] text-[var(--color-fg-muted)] hover:text-[var(--color-fg)] hover:bg-[var(--color-surface)] transition-colors"
+                onclick="openFullscreen(this.closest('.relative'))">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          Full Screen
+        </button>
+      </div>
+    </div>
+    <p class="mt-4 text-xs text-[var(--color-fg-subtle)] text-center font-mono">
+      Mobile layout — 390px viewport, single column, touch-optimized
+    </p>
+  </div>
+</section>
+```
+
+**Mobile layout rules:**
+- Single column — no multi-column grids
+- Touch-friendly buttons: minimum 44px height, generous padding
+- Hamburger menu replaces desktop navigation (see hamburger menu pattern below)
+- Sections stack vertically with consistent padding (typically `px-5 py-10`)
+- Hero text scales down (display size → 2xl/3xl, not 5xl/6xl)
+- Cards show full-width or 2-column max
+- Carousels use single-card-per-slide mode
+
+**Hamburger menu pattern (for mobile nav):**
+
+```html
+<!-- Mobile nav bar -->
+<div style="background: var(--color-bg);" class="flex items-center justify-between px-5 py-4 sticky top-0 z-10 border-b border-[var(--color-border)]">
+  <span class="font-bold text-lg">{{BRAND}}</span>
+  <button id="hamburger-btn" onclick="openMobileMenu()" class="p-2 rounded-lg hover:bg-[var(--color-border)] transition-colors">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+</div>
+
+<!-- Slide-in menu -->
+<div id="mobile-menu" class="fixed inset-0 z-50 pointer-events-none" style="display:none;">
+  <!-- Dark backdrop -->
+  <div id="mobile-menu-backdrop" class="absolute inset-0 bg-black/50" onclick="closeMobileMenu()"></div>
+  <!-- Menu panel — slides in from left -->
+  <div id="mobile-menu-panel" class="absolute left-0 top-0 h-full w-[280px] flex flex-col"
+       style="background: var(--color-surface); transform: translateX(-100%); transition: transform 0.3s var(--ease-out);">
+    <!-- Menu header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-[var(--color-border)]">
+      <span class="font-bold text-lg">{{BRAND}}</span>
+      <button onclick="closeMobileMenu()" class="p-2 rounded-lg hover:bg-[var(--color-border)] transition-colors">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <!-- Nav links -->
+    <nav class="flex-1 px-4 py-6 flex flex-col gap-1">
+      <a href="#" class="px-4 py-3 rounded-xl text-[var(--color-fg)] hover:bg-[var(--color-border)] transition-colors font-medium">Home</a>
+      <a href="#" class="px-4 py-3 rounded-xl text-[var(--color-fg-muted)] hover:bg-[var(--color-border)] transition-colors">Menu</a>
+      <a href="#" class="px-4 py-3 rounded-xl text-[var(--color-fg-muted)] hover:bg-[var(--color-border)] transition-colors">About</a>
+      <div class="my-2 border-t border-[var(--color-border)]"></div>
+      <a href="#" class="px-4 py-3 rounded-xl text-[var(--color-fg-muted)] hover:bg-[var(--color-border)] transition-colors">Contact</a>
+    </nav>
+    <!-- CTA at bottom -->
+    <div class="px-5 py-5 border-t border-[var(--color-border)]">
+      <button class="w-full py-3 rounded-xl font-semibold text-white transition-colors"
+              style="background: var(--color-accent);">Order Now</button>
+    </div>
+  </div>
+</div>
+```
+
+```js
+function openMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const panel = document.getElementById('mobile-menu-panel');
+  menu.style.display = 'block';
+  menu.style.pointerEvents = 'auto';
+  requestAnimationFrame(() => { panel.style.transform = 'translateX(0)'; });
+  document.body.style.overflow = 'hidden';
+}
+function closeMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const panel = document.getElementById('mobile-menu-panel');
+  panel.style.transform = 'translateX(-100%)';
+  setTimeout(() => {
+    menu.style.display = 'none';
+    menu.style.pointerEvents = 'none';
+  }, 300);
+  document.body.style.overflow = '';
+}
+```
+
+**Re-initializing hamburger menu after cloneNode (for fullscreen overlay):**
+
+When hamburger menu is used inside a phone frame that has a fullscreen viewer, override `reinitClone` to re-bind the menu functions on the cloned DOM:
+
+```js
+function reinitClone(clone) {
+  const btn = clone.querySelector('#hamburger-btn');
+  const menu = clone.querySelector('#mobile-menu');
+  const panel = clone.querySelector('#mobile-menu-panel');
+  const backdrop = clone.querySelector('#mobile-menu-backdrop');
+  if (!btn || !menu) return;
+
+  btn.addEventListener('click', () => {
+    menu.style.display = 'block';
+    menu.style.pointerEvents = 'auto';
+    requestAnimationFrame(() => { panel.style.transform = 'translateX(0)'; });
+  });
+  backdrop?.addEventListener('click', () => {
+    panel.style.transform = 'translateX(-100%)';
+    setTimeout(() => { menu.style.display = 'none'; menu.style.pointerEvents = 'none'; }, 300);
+  });
+  clone.querySelectorAll('[onclick="closeMobileMenu()"]').forEach(el => {
+    el.removeAttribute('onclick');
+    el.addEventListener('click', () => {
+      panel.style.transform = 'translateX(-100%)';
+      setTimeout(() => { menu.style.display = 'none'; menu.style.pointerEvents = 'none'; }, 300);
+    });
+  });
+}
+```
+
 ### Phase 4 — Present and iterate
 
 After building the showcase:
 
 1. Tell the user which file to open and how (e.g., "Open design-showcase.html in a browser")
 2. List what each section shows
-3. Call out specific things to evaluate ("look at the card hover states", "compare the type scale")
+3. Call out specific things to evaluate ("look at the card hover states", "compare the type scale", "try the Full Screen button on the desktop mockup", "scroll inside the phone frame")
 4. Ask for explicit approval or change requests
 5. If changes requested, edit the existing file or create a new version
 
@@ -543,6 +825,194 @@ pnpm dev
 **When to suggest this to the user:**
 After the static showcase is approved AND the user wants to feel the interactions before committing to the full production build. Frame it as: "The static showcase shows the design. The interactive prototype lets you *feel* it — real animations, real component interactions, working navigation. It takes ~1 session to build and can serve as a reference implementation for the production app."
 
+## Interactive patterns reference
+
+### Carousel / testimonial slider pattern
+
+Use for testimonials, product galleries, or any repeating content where paginated browsing improves readability. Always implement touch/mouse drag support for mobile usability.
+
+**HTML structure:**
+
+```html
+<div class="carousel-container relative overflow-hidden" id="carousel-{{ID}}">
+  <!-- Track — slides horizontally via transform -->
+  <div class="carousel-track flex transition-transform duration-500"
+       style="--ease-out: cubic-bezier(0.22, 1, 0.36, 1); transition-timing-function: var(--ease-out);"
+       id="track-{{ID}}">
+    <!-- Each slide -->
+    <div class="carousel-slide flex-shrink-0 w-full md:w-1/3 px-3">
+      <!-- Card content -->
+    </div>
+    <!-- More slides... -->
+  </div>
+
+  <!-- Prev / Next arrows (optional, desktop) -->
+  <button class="carousel-prev absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-white border border-[var(--color-border)] shadow flex items-center justify-center hover:bg-[var(--color-surface)] transition-colors z-10"
+          onclick="carouselPrev('{{ID}}')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <button class="carousel-next absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-white border border-[var(--color-border)] shadow flex items-center justify-center hover:bg-[var(--color-surface)] transition-colors z-10"
+          onclick="carouselNext('{{ID}}')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+</div>
+
+<!-- Dot navigation -->
+<div class="flex justify-center gap-2 mt-6" id="dots-{{ID}}">
+  <!-- Dots injected by JS -->
+</div>
+```
+
+**JavaScript (self-contained, add once per showcase):**
+
+```js
+(function() {
+  // Configuration per carousel ID
+  const carouselConfig = {
+    '{{ID}}': {
+      totalSlides: 6,       // total number of slide elements
+      desktopPerPage: 3,    // slides visible at once on desktop
+      mobilePerPage: 1,     // slides visible at once on mobile
+      autoAdvanceMs: 4000,  // 0 to disable auto-advance
+    }
+  };
+
+  const state = {}; // tracks current page per carousel
+
+  function getConfig(id) { return carouselConfig[id] || { totalSlides: 3, desktopPerPage: 1, mobilePerPage: 1, autoAdvanceMs: 0 }; }
+  function isMobile() { return window.innerWidth < 768; }
+
+  function perPage(id) {
+    const cfg = getConfig(id);
+    return isMobile() ? cfg.mobilePerPage : cfg.desktopPerPage;
+  }
+
+  function totalPages(id) {
+    return Math.ceil(getConfig(id).totalSlides / perPage(id));
+  }
+
+  function goToPage(id, page) {
+    const cfg = getConfig(id);
+    const pages = totalPages(id);
+    page = ((page % pages) + pages) % pages; // wrap around
+    state[id] = page;
+
+    const track = document.getElementById('track-' + id);
+    if (!track) return;
+    const pp = perPage(id);
+    const pct = (100 / pp) * page;
+    track.style.transform = `translateX(-${pct}%)`;
+
+    // Update dots
+    const dotsEl = document.getElementById('dots-' + id);
+    if (dotsEl) {
+      dotsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
+        d.style.background = i === page ? 'var(--color-accent)' : 'var(--color-border)';
+        d.style.transform = i === page ? 'scale(1.25)' : 'scale(1)';
+      });
+    }
+  }
+
+  window.carouselNext = function(id) {
+    resetAutoAdvance(id);
+    goToPage(id, (state[id] || 0) + 1);
+  };
+  window.carouselPrev = function(id) {
+    resetAutoAdvance(id);
+    goToPage(id, (state[id] || 0) - 1);
+  };
+  window.carouselGoTo = function(id, page) {
+    resetAutoAdvance(id);
+    goToPage(id, page);
+  };
+
+  // Auto-advance timers
+  const timers = {};
+  function startAutoAdvance(id) {
+    const ms = getConfig(id).autoAdvanceMs;
+    if (!ms) return;
+    timers[id] = setInterval(() => goToPage(id, (state[id] || 0) + 1), ms);
+  }
+  function resetAutoAdvance(id) {
+    if (timers[id]) { clearInterval(timers[id]); timers[id] = null; }
+    startAutoAdvance(id);
+  }
+
+  // Touch / mouse drag support
+  function addDragSupport(id) {
+    const container = document.getElementById('carousel-' + id);
+    if (!container) return;
+    let startX = 0, dragging = false;
+
+    container.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; dragging = true; }, { passive: true });
+    container.addEventListener('touchend', (e) => {
+      if (!dragging) return;
+      dragging = false;
+      const diff = startX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) diff > 0 ? carouselNext(id) : carouselPrev(id);
+    });
+
+    container.addEventListener('mousedown', (e) => { startX = e.clientX; dragging = true; });
+    container.addEventListener('mouseup', (e) => {
+      if (!dragging) return;
+      dragging = false;
+      const diff = startX - e.clientX;
+      if (Math.abs(diff) > 40) diff > 0 ? carouselNext(id) : carouselPrev(id);
+    });
+    container.addEventListener('mouseleave', () => { dragging = false; });
+  }
+
+  // Init dots and start all carousels
+  function initCarousel(id) {
+    state[id] = 0;
+    const pages = totalPages(id);
+    const dotsEl = document.getElementById('dots-' + id);
+    if (dotsEl) {
+      dotsEl.innerHTML = '';
+      for (let i = 0; i < pages; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'carousel-dot w-2 h-2 rounded-full transition-all duration-300';
+        dot.style.background = i === 0 ? 'var(--color-accent)' : 'var(--color-border)';
+        dot.style.transform = i === 0 ? 'scale(1.25)' : 'scale(1)';
+        dot.addEventListener('click', () => carouselGoTo(id, i));
+        dotsEl.appendChild(dot);
+      }
+    }
+    addDragSupport(id);
+    goToPage(id, 0);
+    startAutoAdvance(id);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    Object.keys(carouselConfig).forEach(initCarousel);
+  });
+})();
+```
+
+**Re-initializing carousels after cloneNode (for fullscreen viewer):**
+
+When a carousel lives inside a fullscreen-capable mockup, override `reinitClone` to re-run carousel initialization on the cloned DOM:
+
+```js
+function reinitClone(clone) {
+  // Re-init carousels: update IDs to avoid collision with originals
+  clone.querySelectorAll('[id^="carousel-"]').forEach(el => {
+    const oldId = el.id.replace('carousel-', '');
+    const newId = oldId + '-clone';
+    el.id = 'carousel-' + newId;
+    const track = clone.querySelector('#track-' + oldId);
+    if (track) track.id = 'track-' + newId;
+    const dots = clone.querySelector('#dots-' + oldId);
+    if (dots) dots.id = 'dots-' + newId;
+    // Re-assign onclick attributes
+    clone.querySelectorAll(`[onclick*="${oldId}"]`).forEach(btn => {
+      btn.setAttribute('onclick', btn.getAttribute('onclick').replaceAll(oldId, newId));
+    });
+    initCarousel(newId); // call the carousel init function
+  });
+}
+```
+
 ## Quality checklist
 
 **For multi-version designs (v2, v3, v4...) — verify FIRST:**
@@ -554,7 +1024,7 @@ After the static showcase is approved AND the user wants to feel the interaction
 - [ ] Different component architecture (not the same cards with different borders)
 - [ ] A unique codename assigned to the new direction
 
-**For every showcase — verify before presenting:
+**For every showcase — verify before presenting:**
 
 - [ ] HTML opens correctly in a browser with no console errors
 - [ ] All fonts load (Google Fonts link tags present and correct)
@@ -568,6 +1038,11 @@ After the static showcase is approved AND the user wants to feel the interaction
 - [ ] Every section has a numbered header (§01, §02, etc.)
 - [ ] Annotation text below each framed mockup
 - [ ] Navigation in the top bar links to all sections
+- [ ] Fullscreen viewer implemented on desktop and mobile mockups
+- [ ] Mobile phone frame section included (Phase 3.5)
+- [ ] Mobile hamburger menu implemented (not desktop nav) inside phone frame
+- [ ] Touch/drag support on any carousels
+- [ ] reinitClone() override written if cloned elements contain interactive JS
 
 ## File naming convention
 
@@ -591,8 +1066,12 @@ docs/design/
 
 3. **Making the showcase too simple.** The showcase needs real content — real headlines, real card data, real interaction states. Placeholder-heavy showcases don't help the user judge the design.
 
-4. **Forgetting mobile.** Every showcase should be responsive. Use Tailwind responsive prefixes (`md:`, `lg:`) throughout.
+4. **Forgetting mobile.** Every showcase must include a Phase 3.5 mobile section — a 390px phone frame with the content adapted to mobile layout, a hamburger menu, and single-column stacking. Use Tailwind responsive prefixes (`md:`, `lg:`) throughout for the desktop mockup.
 
 5. **Skipping accessibility.** Every showcase must have: contrast-passing colors, focus-visible rings, reduced-motion fallbacks, semantic HTML, no emoji icons.
 
 6. **Not annotating.** Every framed mockup needs a brief annotation below it explaining what the screen shows. The user shouldn't have to guess.
+
+7. **Forgetting the fullscreen button.** Every framed desktop mockup and phone frame mockup should have a Full Screen button. Users want to see the design at real viewport size without scrolling the showcase document.
+
+8. **Forgetting interactive re-initialization after cloneNode.** When a mockup that contains carousel, hamburger menu, or other JS-driven interactivity is cloned for the fullscreen overlay, the event listeners do NOT clone with it. Always write a `reinitClone()` override to re-bind those handlers on the cloned DOM.

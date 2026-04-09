@@ -17,7 +17,8 @@ The showcase is the primary deliverable. Open it in any browser and scroll throu
 |---|---|
 | **1. Gather intelligence** | Query product type, audience, competitors, emotional register. Integrates with `ui-ux-pro-max` skill for data-driven design decisions. |
 | **2. Write design system** | Create a markdown doc with 8 required sections: philosophy, colors, typography, spacing, radius/shadows, motion, component patterns, accessibility. |
-| **3. Build showcase HTML** | Generate a self-contained HTML file with Tailwind CDN, Google Fonts, CSS custom properties, scroll-reveal animations, and full-page screen mockups. |
+| **3. Build showcase HTML** | Generate a self-contained HTML file with Tailwind CDN, Google Fonts, CSS custom properties, scroll-reveal animations, full-page screen mockups, and a fullscreen overlay viewer on every mockup. |
+| **3.5. Mobile mockup** | Build a 390px phone frame section showing the same content adapted to mobile layout — single column, hamburger menu, touch-friendly buttons, stacked sections. |
 | **4. Present & iterate** | Show the user which file to open, call out specific things to evaluate, collect feedback. |
 | **5. Multiple directions** | Create genuinely different alternatives — not just color swaps. Each version must differ on 5+ of 7 differentiation axes. |
 | **6. Lock & reference** | Finalize the approved direction, link it from implementation plans, commit to git. |
@@ -49,6 +50,19 @@ When creating multiple design versions, every version must be **identically diff
 | **Motion character** | Snappy (150ms), confident (250ms), gentle (400ms), spring-based, minimal |
 | **Information density** | Spacious editorial, balanced app, compact dashboard, dense terminal |
 | **Emotional register** | Premium editorial, warm craft, technical futurist, playful startup, indie builder |
+
+## Key features
+
+- **Design tokens** — every showcase renders colors, typography, spacing, and primitives live as interactive swatches and components
+- **Scroll-reveal animations** — IntersectionObserver-driven fade+slide entrance animations with `prefers-reduced-motion` support
+- **Full-page desktop mockups** — framed browser-style containers showing complete page designs at full fidelity
+- **Fullscreen overlay viewer** — every mockup (desktop and mobile) has a "Full Screen" button that opens it in a dark overlay at max resolution; close via ESC, X, or backdrop click
+- **Mobile phone frame mockup (Phase 3.5)** — 390px iPhone-proportioned frame with bezel, notch, and scrollable content area showing the mobile-adapted layout
+- **Hamburger menu** — slide-in left panel with backdrop overlay for mobile nav; locks background scroll when open
+- **Interactive carousels** — swipeable testimonial/gallery sliders with dot navigation, touch/mouse drag, paginated desktop groups, and auto-advance timers
+- **Interactive re-initialization** — `reinitClone()` pattern ensures carousels and menus work correctly inside fullscreen clones
+- **Multi-version navigation** — cross-links between v1/v2/v3 showcases in the top nav bar
+- **Zero build step** — opens in any browser with no npm, no bundler, no server
 
 ## Installation
 
@@ -130,12 +144,21 @@ codech-mockup-design/
 
 ## Example output
 
-The skill was developed while building the Atelier AI-driven Website Marketplace, where it produced:
+The skill was developed while building two real-world projects:
 
+**Atelier AI-driven Website Marketplace** — produced:
 - **4 marketplace design directions** (dark editorial, warm light, glassmorphism, app layout) — each genuinely different in layout, typography, color, and motion
 - **1 dashboard design** (8 screens: onboarding, home, site editor with AI chat, prompt templates, version history, settings, commerce, custom dev requests)
 - **4 design system documents** with full token specifications
 - **5 visual showcase HTML files** totaling ~8,000 lines of production-quality mockups
+
+**Chezchoux Bakery & Patisserie** — produced:
+- **1 landing page design** with warm artisan aesthetic — handcrafted cream/chocolate palette, serif display + humanist sans pairing, full hero, product highlights, testimonial carousel, and gallery sections
+- **1 mobile phone frame mockup** (390px) showing the full page adapted to mobile layout with hamburger menu, single-column stacking, and touch-friendly tap targets
+- **Fullscreen viewer** on both desktop and mobile mockups for real-size evaluation
+- **Interactive testimonial carousel** with touch/swipe support, dot navigation, and auto-advance
+- **Slide-in hamburger menu** with backdrop overlay and scroll lock
+- **1 design system document** covering warm bakery color tokens, typography scale, motion system, and component patterns
 
 ## License
 
