@@ -1153,7 +1153,7 @@ These rules are derived from real production issues encountered during mockup de
 
 1. **Always wrap in a browser frame** — Use a Safari/Chrome-style window (traffic light dots + URL bar with site domain) instead of a plain bordered container. Rounded corners (12px), light gray tab bar (#F0F0F0), white URL bar with green shield icon.
 
-2. **Render at 1440px, scale to fit** — Set the mockup content to `width: 1440px` and use CSS `zoom` (or `transform: scale()` with `transform-origin: top left`) to shrink it into the container. Calculate: `zoom = containerWidth / 1440`. This keeps the desktop layout intact at any viewport size.
+2. **Render at 1440px, scale to fit** — Set the mockup content to `width: 1440px` and use `transform: scale()` with `transform-origin: top left` to shrink it into the container. Calculate: `scale = containerWidth / 1440`. Do NOT use CSS `zoom` — it is not supported on Safari iOS. After scaling, set the wrapper height to `scrollHeight * scale` so the parent container knows the correct size.
 
 3. **Override all Tailwind responsive classes** — CSS media queries use viewport width, not element width. Add CSS overrides inside a `#desktop-mockup-frame` scope that force all `md:` classes to their desktop values:
    ```css
@@ -1191,7 +1191,7 @@ These rules are derived from real production issues encountered during mockup de
 
 14. **Re-add the mockup ID on the desktop clone** — The CSS overrides target `#desktop-mockup-frame`. Since `cloneNode` copies the ID but it gets removed to avoid duplicates, re-add it: `clone.setAttribute('id', 'desktop-mockup-frame')`.
 
-15. **Use CSS `zoom` for desktop fullscreen on mobile** — `transform: scale()` doesn't change layout size, causing scroll/height issues. CSS `zoom` naturally adjusts layout size. Firefox fallback: `-moz-transform: scale()` with `-moz-transform-origin: top left`.
+15. **Never use CSS `zoom` — use `transform: scale()` everywhere** — CSS `zoom` is not supported on Safari iOS (the #1 mobile browser). Always use `transform: scale()` with `transform-origin: top left`. After scaling, wrap the element in a div sized to `width * scale` and `height * scale` so the parent scrolls correctly. Use `requestAnimationFrame` to measure `scrollHeight` after the clone renders.
 
 16. **Re-initialize interactive JS on clones** — Event listeners don't survive `cloneNode`. After cloning, re-bind: carousel swipe/dots, hamburger menu open/close, and any other interactive elements.
 
@@ -1202,6 +1202,10 @@ These rules are derived from real production issues encountered during mockup de
 18. **Three-row layout** — Row 1: motion tokens reference table + hero entrance auto-loop. Row 2: real testimonial card fade-in, real product cards stagger, real product cards with live hover. Row 3: actual CTA buttons with hover transitions, actual nav links with underline animation, real product images with zoom-on-hover.
 
 19. **Auto-loop with CSS keyframes** — Use `animation: name duration ease infinite` for entrance demos. Interactive demos (hover effects) should be real elements the user can interact with, not auto-playing.
+
+20. **Responsive scroll height for desktop frame** — The browser frame scroll height should be responsive: use a taller value on mobile (e.g., 1800px) so the scaled-down desktop view shows more content, and a shorter value on desktop (e.g., 900px) where the frame is already large. Example: `var maxHeight = window.innerWidth < 768 ? 1800 : 900;`
+
+21. **Center the fullscreen overlay content** — Add `display: flex; justify-content: center; width: 100%` on the fullscreen content container so the scaled desktop mockup is centered horizontally on all viewport sizes.
 
 ## Quality checklist
 
