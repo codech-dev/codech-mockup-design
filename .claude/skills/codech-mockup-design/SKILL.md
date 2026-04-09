@@ -568,6 +568,100 @@ function reinitClone(clone) {
 }
 ```
 
+
+### Phase 3.6 — AI image generation (optional, recommended)
+
+After building the showcase HTML, generate matching AI images using the Hugging Face Inference API to replace placeholder/stock images with brand-aligned visuals.
+
+**When to use:** When the showcase uses placeholder images (Unsplash URLs, gray boxes, `onerror` fallbacks) and the user wants polished, brand-specific mockup imagery. Skip if the user already has real product photos.
+
+**Prerequisites:**
+- `HF_TOKEN` environment variable set (free token from https://huggingface.co/settings/tokens)
+- Python 3.10+ (for the generation script)
+- `uv` package runner (for PEP 723 inline dependencies)
+
+**The generation script:** `scripts/generate_mockup_images.py`
+
+Uses the HF Inference API with FLUX.1-schnell (default, fast ~5s) or FLUX.1-dev (higher quality ~15s) to generate images matching the design's aesthetic.
+
+**Available image types:**
+
+| Type | Size | Use case |
+|------|------|----------|
+| `hero` | 1440x640 | Full-width hero banner, suitable for text overlay |
+| `product` | 800x800 | Product showcase on neutral background |
+| `lifestyle` | 1200x800 | Atmosphere/environment shots |
+| `texture` | 1200x1200 | Subtle background textures and patterns |
+| `about` | 800x600 | Behind-the-scenes, craftsmanship shots |
+| `card` | 600x600 | Card thumbnails, feature images |
+
+**Quick start:**
+
+```bash
+# Generate all standard types for a bakery brand
+uv run scripts/generate_mockup_images.py \
+  --brand "Chez Choux artisan French patisserie" \
+  --mood "warm premium handcrafted golden cream chocolate" \
+  --output-dir docs/design/images
+
+# Generate only hero and product, 3 variations each
+uv run scripts/generate_mockup_images.py \
+  --brand "TechCo SaaS dashboard" \
+  --mood "modern minimal clean futuristic dark" \
+  --types hero,product --count 3 \
+  --output-dir docs/design/images
+
+# Higher quality with FLUX.1-dev
+uv run scripts/generate_mockup_images.py \
+  --brand "Luxury fashion house" --mood "editorial high-end monochrome" \
+  --model flux-dev --output-dir images
+
+# Single custom prompt for a specific section
+uv run scripts/generate_mockup_images.py \
+  --custom-prompt "Aerial view of golden choux pastries arranged on a marble counter, warm natural light, food photography" \
+  --custom-width 1440 --custom-height 640 \
+  --custom-filename hero-banner.png \
+  --output-dir docs/design/images
+```
+
+**Workflow integration:**
+
+1. **Analyze the design tokens** — Extract the color palette mood (warm/cool/neutral), brand personality, and product type from the Phase 2 design system document.
+
+2. **Build the prompt keywords** — Map design tokens to generation prompts:
+   - Warm colors (#FF3C00, #FFDC4A) → "warm, golden, amber, inviting"
+   - Serif fonts (Fraunces) → "artisan, handcrafted, premium, editorial"
+   - Food/bakery → "patisserie, pastry, fresh, appetizing"
+
+3. **Generate images** — Run the script with `--brand` and `--mood` derived from the design tokens. The script generates a `generated-images.json` manifest listing all outputs.
+
+4. **Insert into showcase HTML** — Replace placeholder `<img>` tags with the generated images:
+   ```html
+   <!-- Before: placeholder -->
+   <img src="https://images.unsplash.com/photo-..." alt="Hero">
+
+   <!-- After: AI-generated -->
+   <img src="images/hero.png" alt="Hero">
+   ```
+
+5. **Iterate** — If an image doesn't match the brand, re-run with adjusted `--mood` keywords or use `--custom-prompt` for specific shots.
+
+**Prompt engineering tips:**
+- Include the **product type** in `--brand` (e.g., "artisan bakery", "SaaS dashboard", "fashion e-commerce")
+- Include **color temperature** in `--mood` (e.g., "warm golden", "cool blue", "monochrome")
+- Include **style keywords** in `--mood` (e.g., "editorial", "minimal", "organic", "futuristic")
+- Use `--extra` for scene-specific details (e.g., "with fresh strawberries and chocolate")
+- Use `--custom-prompt` when templates don't fit (e.g., specific interior shots, team photos)
+
+**Models:**
+
+| Model | Speed | Quality | Best for |
+|-------|-------|---------|----------|
+| `flux-schnell` | ~5s | Good | Quick iteration, batch generation |
+| `flux-dev` | ~15s | Best | Hero banners, key visuals |
+| `sdxl` | ~10s | Good | Alternative style, more stylized |
+
+Start with `flux-schnell` for rapid iteration, then re-generate key images with `flux-dev` for final quality.
 ### Phase 4 — Present and iterate
 
 After building the showcase:
@@ -1043,6 +1137,7 @@ function reinitClone(clone) {
 - [ ] Mobile hamburger menu implemented (not desktop nav) inside phone frame
 - [ ] Touch/drag support on any carousels
 - [ ] reinitClone() override written if cloned elements contain interactive JS
+- [ ] AI-generated images considered (Phase 3.6) — run generate_mockup_images.py if showcase uses placeholder images
 
 ## File naming convention
 
@@ -1056,6 +1151,11 @@ docs/design/
 ├── design-showcase-v3.html    # v3 showcase
 ├── design-showcase-dashboard.html  # screen-specific showcase
 └── design-system-v4.md        # approved version (noted in doc)
+├── images/                    # AI-generated mockup images
+│   ├── hero.png
+│   ├── product.png
+│   ├── lifestyle.png
+│   └── generated-images.json  # manifest with prompts used
 ```
 
 ## Common pitfalls to avoid

@@ -19,6 +19,7 @@ The showcase is the primary deliverable. Open it in any browser and scroll throu
 | **2. Write design system** | Create a markdown doc with 8 required sections: philosophy, colors, typography, spacing, radius/shadows, motion, component patterns, accessibility. |
 | **3. Build showcase HTML** | Generate a self-contained HTML file with Tailwind CDN, Google Fonts, CSS custom properties, scroll-reveal animations, full-page screen mockups, and a fullscreen overlay viewer on every mockup. |
 | **3.5. Mobile mockup** | Build a 390px phone frame section showing the same content adapted to mobile layout — single column, hamburger menu, touch-friendly buttons, stacked sections. |
+| **3.6. AI image generation** | Generate brand-aligned images via HF Inference API (FLUX.1) — hero banners, product shots, lifestyle photos, textures. Replaces placeholder images with polished AI visuals. |
 | **4. Present & iterate** | Show the user which file to open, call out specific things to evaluate, collect feedback. |
 | **5. Multiple directions** | Create genuinely different alternatives — not just color swaps. Each version must differ on 5+ of 7 differentiation axes. |
 | **6. Lock & reference** | Finalize the approved direction, link it from implementation plans, commit to git. |
@@ -61,6 +62,7 @@ When creating multiple design versions, every version must be **identically diff
 - **Hamburger menu** — slide-in left panel with backdrop overlay for mobile nav; locks background scroll when open
 - **Interactive carousels** — swipeable testimonial/gallery sliders with dot navigation, touch/mouse drag, paginated desktop groups, and auto-advance timers
 - **Interactive re-initialization** — `reinitClone()` pattern ensures carousels and menus work correctly inside fullscreen clones
+- **AI image generation (Phase 3.6)** — generate hero banners, product shots, lifestyle photos, and textures via HF Inference API (FLUX.1-schnell/dev) with brand-aware prompt engineering; outputs a JSON manifest for reproducibility
 - **Multi-version navigation** — cross-links between v1/v2/v3 showcases in the top nav bar
 - **Zero build step** — opens in any browser with no npm, no bundler, no server
 
@@ -109,6 +111,8 @@ git clone https://github.com/codech-dev/codech-mockup-design.git
 - **`ui-ux-pro-max` skill** — Design intelligence engine. Provides color palettes, font pairings, UX patterns, and product-type recommendations.
 - **Python 3** — Required by ui-ux-pro-max's search scripts.
 - **Internet connection** — For Tailwind CDN and Google Fonts in the showcase HTML.
+- **HF_TOKEN** *(optional, for Phase 3.6)* — Free Hugging Face API token for AI image generation. Get one at https://huggingface.co/settings/tokens
+- **uv** *(optional, for Phase 3.6)* — Python package runner for the image generation script. Install via `pip install uv`.
 
 ### Target implementation stack
 
@@ -136,6 +140,8 @@ codech-mockup-design/
 │               ├── showcase-template.md
 │               ├── differentiation-axes.md
 │               └── interactive-prototype-scaffold.md
+├── scripts/
+│   └── generate_mockup_images.py   # AI image generation script
 ├── CLAUDE.md
 ├── README.md
 ├── LICENSE

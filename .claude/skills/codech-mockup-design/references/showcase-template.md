@@ -655,3 +655,34 @@ function reinitClone(clone) {
   });
 }
 ```
+
+## AI-generated images (Phase 3.6)
+
+After building the showcase HTML, run the image generation script to replace placeholder images:
+
+```bash
+# Generate images matching the design tokens
+uv run scripts/generate_mockup_images.py \
+  --brand "{{PROJECT}} — brief description" \
+  --mood "keywords from design tokens (warm, premium, minimal, etc.)" \
+  --output-dir docs/design/images
+
+# Then update img src attributes in the showcase HTML:
+# <img src="images/hero.png" alt="...">
+# <img src="images/product.png" alt="...">
+# <img src="images/lifestyle.png" alt="...">
+```
+
+The script generates a `generated-images.json` manifest that records the prompts used, so images can be regenerated with adjustments.
+
+### Mapping design tokens to image prompts
+
+| Design token | Prompt keyword mapping |
+|---|---|
+| Warm palette (#FF3C00, cream, gold) | "warm, golden, amber, inviting, natural light" |
+| Cool palette (#2563EB, slate, white) | "cool, blue, clean, modern, crisp lighting" |
+| Serif display font | "artisan, editorial, premium, handcrafted" |
+| Sans-serif geometric | "modern, minimal, technical, futuristic" |
+| Food/bakery domain | "patisserie, pastry, fresh ingredients, appetizing" |
+| SaaS/tech domain | "dashboard, interface, abstract, geometric" |
+| Fashion/luxury | "editorial, high-end, studio, dramatic lighting" |
