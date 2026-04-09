@@ -1,0 +1,19 @@
+{
+  "name": "codech-mockup-design",
+  "version": "1.0.0",
+  "description": "Structured design ideation and visual prototyping workflow for Claude Code. Creates design system documents and self-contained HTML showcases.",
+  "author": "codech-dev",
+  "license": "MIT",
+  "keywords": [
+    "claude-code-plugin",
+    "design",
+    "mockup",
+    "prototyping",
+    "design-system",
+    "ui-ux"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codech-dev/codech-mockup-design.git"
+  }
+}
