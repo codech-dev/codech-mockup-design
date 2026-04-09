@@ -61,6 +61,8 @@ When creating multiple design versions, every version must be **identically diff
 - **Mobile phone frame mockup (Phase 3.5)** — 390px iPhone-proportioned frame with bezel, notch, and scrollable content area showing the mobile-adapted layout
 - **Hamburger menu** — slide-in left panel with backdrop overlay for mobile nav; locks background scroll when open
 - **Interactive carousels** — swipeable testimonial/gallery sliders with dot navigation, touch/mouse drag, paginated desktop groups, and auto-advance timers
+- **Motion system with real components** — motion demos use actual project UI (product cards, testimonial cards, nav links, buttons) with auto-looping animations and interactive hover effects — no abstract shapes
+- **Component language consistency** — all UI primitive labels match the project language (bilingual for non-English projects)
 - **Interactive re-initialization** — `reinitClone()` pattern ensures carousels and menus work correctly inside fullscreen clones
 - **AI image generation (Phase 3.6)** — generate hero banners, product shots, lifestyle photos, and textures via HF Inference API (FLUX.1-schnell/dev) with brand-aware prompt engineering; outputs a JSON manifest for reproducibility
 - **Multi-version navigation** — cross-links between v1/v2/v3 showcases in the top nav bar

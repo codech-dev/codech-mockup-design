@@ -163,8 +163,8 @@ design-showcase.html
 │   ├── Type scale (rendered at actual sizes)
 │   ├── Spacing scale (rendered as bars)
 │   ├── Border radius (rendered as shapes)
-│   ├── Motion values (listed with easing curves)
-│   └── Primitives (buttons, badges, inputs — interactive)
+│   ├── Motion system (interactive demos with REAL components)
+│   └── Primitives (buttons, badges, inputs — using project language/labels)
 ├── Section N: Full-page screen mockups
 │   └── Each framed in a bordered container with shadow
 │       to look like a real app screenshot
@@ -254,6 +254,42 @@ design-showcase.html
 })();
 </script>
 ```
+
+
+**Motion system showcase pattern (always include as a dedicated section):**
+
+The motion system section must demonstrate animations using **REAL components from the mockup**, not abstract shapes or generic placeholder elements. Abstract balls, bars, and geometric shapes do not communicate the design's actual motion behavior.
+
+**Required demos (3 rows):**
+
+Row 1 — Reference + Hero entrance:
+- **Motion tokens table** — A compact reference table mapping each token (easing curves, durations) to its actual usage in the project (e.g., "ease-out → All entrance animations", "150ms → Hover states, button feedback", "400ms → Carousel slide, menu panel")
+- **Hero entrance auto-loop** — The actual hero section content (heading, subtitle, body text, CTA buttons) fading in with the real entrance animation on an infinite loop
+
+Row 2 — Component demos:
+- **Fade + Slide Up** — A real testimonial card (stars, review text, avatar) looping the entrance animation
+- **Stagger Children** — Real product cards (with thumbnails, names, prices) appearing one after another with staggered delays
+- **Card Hover Lift** — Real product cards that the user can actually hover to feel the lift effect and shadow increase
+
+Row 3 — Interactive elements:
+- **Button Transitions** — The actual CTA buttons from the mockup (using the project's language, not English placeholders) with real hover states
+- **Nav Link Animation** — The actual category navigation links with their underline/color hover transitions
+- **Image Hover Zoom** — Real product images with the 700ms scale-on-hover effect used in the product grid
+
+**Key rules:**
+- Never use abstract shapes (bouncing balls, racing bars, growing rectangles) — they waste space and don't communicate the design
+- All demos must use the project's actual language/labels (e.g., Chinese for a HK bakery, not English placeholder text)
+- Auto-looping demos should use CSS `@keyframes` with `infinite` iteration
+- Interactive demos (hover effects) should be real elements the user can interact with
+- Include `@media (prefers-reduced-motion: reduce)` fallbacks for all animation keyframes
+
+**Component section consistency rule:**
+
+All UI primitives in the Components section (§04) must use the project's actual content and language, not generic English labels. For example:
+- Buttons: "立即選購" not "Shop Now", "加入購物車" not "Add to Cart"
+- Badges: "新品 New", "季節限定 Seasonal", "人氣皇牌 Best Seller"
+- Form labels: "電郵地址 Email" not "Email Address"
+- Include all button variants actually used in the mockup (primary, outline, gold, add-to-cart)
 
 **Screen mockup framing pattern:**
 
@@ -1136,6 +1172,9 @@ function reinitClone(clone) {
 - [ ] Mobile phone frame section included (Phase 3.5)
 - [ ] Mobile hamburger menu implemented (not desktop nav) inside phone frame
 - [ ] Touch/drag support on any carousels
+- [ ] Motion system section uses REAL components (product cards, testimonial cards, buttons, nav links) — no abstract shapes
+- [ ] All component labels match the project language (Chinese/bilingual for HK projects, not English placeholders)
+- [ ] Interactive hover demos included (card lift, image zoom, button transitions, nav underlines)
 - [ ] reinitClone() override written if cloned elements contain interactive JS
 - [ ] AI-generated images considered (Phase 3.6) — run generate_mockup_images.py if showcase uses placeholder images
 
@@ -1175,3 +1214,7 @@ docs/design/
 7. **Forgetting the fullscreen button.** Every framed desktop mockup and phone frame mockup should have a Full Screen button. Users want to see the design at real viewport size without scrolling the showcase document.
 
 8. **Forgetting interactive re-initialization after cloneNode.** When a mockup that contains carousel, hamburger menu, or other JS-driven interactivity is cloned for the fullscreen overlay, the event listeners do NOT clone with it. Always write a `reinitClone()` override to re-bind those handlers on the cloned DOM.
+
+9. **Abstract motion demos.** The motion system section must demonstrate animations using REAL components from the mockup (product cards, testimonial cards, nav links, CTA buttons), not abstract shapes like bouncing balls, racing bars, or colored rectangles. Abstract demos waste space and don't communicate how the design actually moves. Use auto-looping CSS keyframe animations on real UI elements, and include interactive hover demos the user can actually try.
+
+10. **English placeholder labels in non-English projects.** When the project targets a non-English audience (e.g., a Hong Kong bakery), all UI primitive demos in the Components section must use the project's actual language — "立即選購" not "Shop Now", "加入購物車" not "Add to Cart". Bilingual labels (Chinese + English) are acceptable. Generic English labels make the showcase feel disconnected from the real product.
